@@ -16,7 +16,7 @@ class App extends Component {
           <img src={seed} alt={seed} className="App-seed" />
         </div>
         <div>
-          <h1>Seed</h1>
+          <h1>Schedule</h1>
           <Bracket />
         </div>
       </div>

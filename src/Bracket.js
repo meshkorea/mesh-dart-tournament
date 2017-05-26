@@ -3,7 +3,7 @@ import { TEAMS } from './constants';
 import { SEED_BRACKET } from './seed';
 
 const dateStyle = {
-  margin: '5px 0',
+  margin: 0,
 };
 const roundGroupStyle = {
   padding: 10,
@@ -16,11 +16,47 @@ const roundGroupStyle = {
 const matchStyle = {
   margin: 0,
   listStyle: 'none',
-  paddingBottom: 5,
+  lineHeight: '1.4em',
+  fontSize: '0.9em',
 };
 const pointMatchStyle = {
   ...matchStyle,
   backgroundColor: '#daf1ff',
+};
+const winnerStyle = {
+  color: '#139458',
+  fontWeight: 'bold',
+};
+const loserStyle = {
+  color: '#8e8e8e',
+  fontWeight: 'normal',
+};
+
+const getTeamId = (team, currentGame = null) => {
+  if (typeof team === 'number') {
+    return team;
+  }
+  const teamInfo = team.split('|');
+  const prevDate = teamInfo[0];
+  const prevTime = teamInfo[1];
+  if (currentGame && currentGame.round > 1) {
+    let prevGame = null;
+    SEED_BRACKET.forEach((round) => {
+      Object.keys(round).forEach((date) => {
+        if (date === prevDate) {
+          round[date].forEach((game) => {
+            if (currentGame.time === prevTime && game.winner !== null) {
+              prevGame = game;
+            }
+          })
+        }
+      })
+    });
+    if (prevGame !== null) {
+      return getTeamId(prevGame.winner, prevGame);
+    }
+  }
+  return team;
 };
 
 const getGameTeam = (teamId, currentGame = null) => {
@@ -47,12 +83,24 @@ const getGameTeam = (teamId, currentGame = null) => {
       return getGameTeam(prevGame.winner);
     }
   }
-  return `Winner of ${prevDate} ${prevTime} game`;
+  return `Winner of ${prevDate} ${prevTime}`;
+};
+
+const getGameTeamStyle = (teamId, currentGame = null) => {
+  let style = {};
+  if (currentGame.winner !== null) {
+    if (teamId === currentGame.winner) {
+      style = winnerStyle;
+    } else {
+      style = loserStyle;
+    }
+  }
+  return style;
 };
 
 class Bracket extends Component {
   render() {
-    const today = new Date('2017-6-7');
+    const today = new Date();
     const todayDate = `${today.getFullYear()}-${(today.getMonth() + 1)}-${today.getDate()}`;
     return (
       <div>
@@ -80,14 +128,20 @@ class Bracket extends Component {
                         <ul style={roundGroupStyle}>
                           {
                             round[date].map((game, gameIndex) => {
-                              const team1 = getGameTeam(game.team1, game);
-                              const team2 = getGameTeam(game.team2, game);
-                              const team1Style = {}
-                              const team2Style = {};
+                              console.log(date, game.time, '----------------------');
+                              const team1Id = getTeamId(game.team1, game);
+                              const team2Id = getTeamId(game.team2, game);
+                              const team1 = getGameTeam(team1Id);
+                              const team2 = getGameTeam(team2Id);
+                              const team1Style = getGameTeamStyle(team1Id, game);
+                              const team2Style = getGameTeamStyle(team2Id, game);
+                              console.log(team1Id, team2Id);
                               return (
                                 <li key={`${game.time}-${gameIndex}`} style={matchStyle}>
                                   {game.time}&nbsp;/&nbsp;
-                                  <strong style={team1Style}>{team1}</strong> vs <strong style={team2Style}>{team2}</strong>
+                                  <strong style={team1Style}>{team1}</strong>
+                                  &nbsp;vs&nbsp;
+                                  <strong style={team2Style}>{team2}</strong>
                                 </li>
                               );
                             })
