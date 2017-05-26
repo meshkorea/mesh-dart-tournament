@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.png';
 import seed from './seed.jpg';
 import './App.css';
+import Bracket from './Bracket';
 
 class App extends Component {
   render() {
@@ -13,6 +14,10 @@ class App extends Component {
         </div>
         <div>
           <img src={seed} alt={seed} className="App-seed" />
+        </div>
+        <div>
+          <h1>Seed</h1>
+          <Bracket />
         </div>
       </div>
     );
