@@ -1,94 +1,106 @@
 import React, { Component } from 'react';
 import { TEAMS } from './constants';
+import { SEED_BRACKET } from './seed';
 
-const seed = [
-  {
-    date: "2017-5-29",
-    games: [
-      {
-        time: "15:00",
-        team1: 1,
-        team2: 2,
-      },
-      {
-        time: "15:30",
-        team1: 3,
-        team2: 4,
-      },
-    ],
-  },
-  {
-    date: "2017-5-30",
-    games: [
-      {
-        time: "15:00",
-        team1: 5,
-        team2: 6,
-      },
-      {
-        time: "15:30",
-        team1: 7,
-        team2: 8,
-      },
-    ],
-  },
-  {
-    date: "2017-5-31",
-    games: [
-      {
-        time: "15:00",
-        team1: 11,
-        team2: 12,
-      },
-      {
-        time: "15:30",
-        team1: 13,
-        team2: 14,
-      },
-    ],
-  },
-  {
-    date: "2017-6-1",
-    games: [
-      {
-        time: "15:00",
-        team1: 15,
-        team2: 16,
-      },
-      {
-        time: "15:30",
-        team1: 17,
-        team2: 18,
-      },
-    ],
-  },
+const dateStyle = {
+  margin: '5px 0',
+};
+const roundGroupStyle = {
+  padding: 10,
+  paddingTop: 5,
+  margin: 0,
+  borderBottom: '1px solid lightgrey',
+  boxSizing: 'border-box',
+  position: 'relative',
+};
+const matchStyle = {
+  margin: 0,
+  listStyle: 'none',
+  paddingBottom: 5,
+};
+const pointMatchStyle = {
+  ...matchStyle,
+  backgroundColor: '#daf1ff',
+};
 
-
-
-];
+const getGameTeam = (teamId, currentGame = null) => {
+  if (typeof teamId === 'number') {
+    return TEAMS[teamId];
+  }
+  const teamInfo = teamId.split('|');
+  const prevDate = teamInfo[0];
+  const prevTime = teamInfo[1];
+  if (currentGame && currentGame.round > 1) {
+    let prevGame = null;
+    SEED_BRACKET.forEach((round) => {
+      Object.keys(round).forEach((date) => {
+        if (date === prevDate) {
+          round[date].forEach((game) => {
+            if (currentGame.time === prevTime && game.winner !== null) {
+              prevGame = game;
+            }
+          })
+        }
+      })
+    });
+    if (prevGame !== null) {
+      return getGameTeam(prevGame.winner);
+    }
+  }
+  return `Winner of ${prevDate} ${prevTime} game`;
+};
 
 class Bracket extends Component {
   render() {
-    const today = new Date('2017-5-29');
+    const today = new Date('2017-6-7');
     const todayDate = `${today.getFullYear()}-${(today.getMonth() + 1)}-${today.getDate()}`;
-    console.log(todayDate);
     return (
       <div>
         {
-          seed.map((data, index) => (
-            <div key={`${data.date}-${index}`}>
-              <h4>{data.date} <strong style={{ color: 'red' }}>{data.date === todayDate ? '<TODAY>' : null}</strong></h4>
-              <ul>
-              {
-                data.games.map((game, gameIndex) => (
-                  <li key={`${game.time}-${gameIndex}`}>
-                    {game.time} / {TEAMS[game.team1]} vs {TEAMS[game.team2]}
-                  </li>
-                ))
-              }
-              </ul>
-            </div>
-          ))
+          SEED_BRACKET.map((round, roundIndex) => {
+            return (
+              <div key={roundIndex}>
+                {
+                  Object.keys(round).map((date, dailyIndex) => {
+                    const isToday = date === todayDate;
+                    return (
+                      <div key={`${date}-${dailyIndex}`} style={isToday ? pointMatchStyle : matchStyle}>
+                        <h4 style={dateStyle}>
+                          {date}&nbsp;&nbsp;
+                          {
+                            isToday ?
+                              <strong style={{ color: '#1ed0ca' }}>
+                                <span role="img" aria-label="arrow">👈</span>
+                                <span role="img" aria-label="arrow">👈</span>
+                                &nbsp;TODAY
+                              </strong>
+                              : null
+                          }
+                        </h4>
+                        <ul style={roundGroupStyle}>
+                          {
+                            round[date].map((game, gameIndex) => {
+                              const team1 = getGameTeam(game.team1, game);
+                              const team2 = getGameTeam(game.team2, game);
+                              const team1Style = {}
+                              const team2Style = {};
+                              return (
+                                <li key={`${game.time}-${gameIndex}`} style={matchStyle}>
+                                  {game.time}&nbsp;/&nbsp;
+                                  <strong style={team1Style}>{team1}</strong> vs <strong style={team2Style}>{team2}</strong>
+                                </li>
+                              );
+                            })
+                          }
+                        </ul>
+                      </div>
+                    )
+                    return 
+                  })
+                }
+              </div>
+            );
+          })
         }
       </div>
     );
