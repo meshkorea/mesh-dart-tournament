@@ -15,9 +15,9 @@ export const SEED_BRACKET = [
         time: '15:30',
         team1: 3,
         team2: 4,
-        score1: 0,
-        score2: 0,
-        winner: null,
+        score1: 234,
+        score2: 427,
+        winner: 4,
       },
     ],
     "2017-5-30": [
