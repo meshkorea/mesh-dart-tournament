@@ -45,7 +45,7 @@ const getTeamId = (team, currentGame = null) => {
       Object.keys(round).forEach((date) => {
         if (date === prevDate) {
           round[date].forEach((game) => {
-            if (currentGame.time === prevTime && game.winner !== null) {
+            if (game.time === prevTime && game.winner !== null) {
               prevGame = game;
             }
           })
@@ -72,7 +72,7 @@ const getGameTeam = (teamId, currentGame = null) => {
       Object.keys(round).forEach((date) => {
         if (date === prevDate) {
           round[date].forEach((game) => {
-            if (currentGame.time === prevTime && game.winner !== null) {
+            if (game.time === prevTime && game.winner !== null) {
               prevGame = game;
             }
           })
@@ -132,24 +132,24 @@ class Bracket extends Component {
                               const team2Id = getTeamId(game.team2, game);
                               const team1 = getGameTeam(team1Id);
                               const team2 = getGameTeam(team2Id);
-                              const team1Style = getGameTeamStyle(team1Id, game);
-                              const team2Style = getGameTeamStyle(team2Id, game);
+                              const team1Style = getGameTeamStyle(game.team1, game);
+                              const team2Style = getGameTeamStyle(game.team2, game);
                               const winner = game.winner;
                               const isTeam1Win = (winner !== null && winner === team1Id);
                               const isTeam2Win = (winner !== null && winner === team2Id);
                               const score1 = game.score1;
                               const score2 = game.score2;
-                              const scoreMessage1 = isTeam1Win && score1 === 0 ? '(부전승)' : `Score: ${score1}`;
-                              const scoreMessage2 = isTeam2Win && score2 === 0 ? '(부전승)' : `Score: ${score2}`;
+                              const scoreMessage1 = isTeam1Win && score1 === 0 ? '(부전승)' : `${score1 !==0 ? `Score: ${score1}` : ''}`;
+                              const scoreMessage2 = isTeam2Win && score2 === 0 ? '(부전승)' : `${score2 !==0 ? `Score: ${score2}` : ''}`;
                               return (
                                 <li key={`${game.time}-${gameIndex}`} style={matchStyle}>
                                   {game.time}&nbsp;/&nbsp;
                                   <strong style={team1Style}>
-                                    {team1} {isTeam1Win ? 'WIN' : ''} {winner !== null && score1 !== 0 ? scoreMessage1 : ''}
+                                    {team1} {isTeam1Win ? 'WIN' : ''} {winner !== null? scoreMessage1 : ''}
                                   </strong>
                                   &nbsp;vs&nbsp;
                                   <strong style={team2Style}>
-                                    {team2} {isTeam2Win ? 'WIN' : ''} {winner !== null && score2 !== 0 ? scoreMessage2 : ''}
+                                    {team2} {isTeam2Win ? 'WIN' : ''} {winner !== null ? scoreMessage2 : ''}
                                   </strong>
                                 </li>
                               );
